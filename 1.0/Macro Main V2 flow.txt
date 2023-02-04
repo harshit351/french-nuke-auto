@@ -32,6 +32,11 @@ Recent Restarts
 Entries Latest 13                 MROUND(v,100)       mmm. dd, yyyy       mmm. dd, yyyy       Statutory/Planned/Unplanned   
 
 
+Challenges
+#1 Date and Time according to IST or french, sort that
+Solution 1- Have tried using the Europe/Paris timezone
+but the issue remains
+Issue #1.2 when calculating whether any date is >NOW(), want to use the europ/paris time
 
 Capabilities to develop:
 1. New Entries should be in highlighted (if we are making a table that can be looked and then replicated that of NG/NO, 
