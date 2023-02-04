@@ -34,7 +34,9 @@ Entries Latest 13                 MROUND(v,100)       mmm. dd, yyyy       mmm. d
 
 
 Capabilities to develop:
-1. New Entries should be in highlighted (if we are making a table that can be looked and then replicated that of NG/NO, we would need to highlight newer entries)
+1. New Entries should be in highlighted (if we are making a table that can be looked and then replicated that of NG/NO, 
+we would need to highlight newer entries)--highlight the publish or update date according to days if monday then till firday to 
+mmonday, if normal day then last day and today
 2. Splitting table into 3
 3. Simplify the code
 
