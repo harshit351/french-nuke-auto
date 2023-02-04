@@ -1,0 +1,276 @@
+https://doaat.edf.fr/en/doaat/export/light/csv?t=1671511159
+https://doaat.edf.fr/en/doaat/export/light/csv?t=1671593585
+
+https://opendata.edf.fr/explore/dataset/indisponibilites-des-moyens-de-production-edf-sa/download/?format=csv&timezone=Greenwich&lang=en&use_labels_for_header=true&csv_separator=%3B&t=1671593585
+
+
+
+1) remove the ones which are over (> end date)
+
+
+open data main 
+
+
+
+process now:
+achieved a single table of all notices on their latest version for nuclear plants >=800 MW that are fully out
+
+now what needs to be done:
+split the data into three sections
+current and future and recent restarts
+
+=IF(AND(P2<=NOW(), S2>=NOW()), "Current", IF(AND(P2<=NOW(), S2<NOW()), "Recent", IF(P2>NOW()), "Future", "Error")))
+
+curren outage is when:
+the start date is <= NOW(), end date is >= now()
+
+future outage is when:
+the start date is >= NOW()
+
+recent restart is when:
+the start date is <=NOW(), end date is <now()
+
+this code will loop through each row in the table, check the value in the date column, and if the date is before January 1, 2022 (you can change this date to your first criteria), it will cut the row and paste it into the second table. If the date is on or after January 1, 2022 but before January 1, 2023 (you can change these dates to your second criteria), it will cut the row and paste it into the third table.
+
+Keep in mind that if you are using the .Cut method to move rows between tables, the rows will be removed from the original table. If you want to copy the rows instead of moving them, you can use the .Copy method and then use the .Paste method to paste the copied rows into the second and third tables.
+
+how to develop this capability:
+either first sort the table as A to Z then do it
+or directly split by date using hard VBA code
+
+but first split your start date and end date row by text to column fucntion and then join them again
+do it for one cell and then use function to repeat it///done
+
+
+
+DATE
+start
+=DATE(LEFT(H2,4),MID(H2, 6, 2),MID(H2, 9, 2))+TIME(MID(H2, 12, 2),MID(H2, 15, 2),MID(H2, 18, 2))
+
+
+end
+
+=DATE(LEFT(J2,4),MID(J2, 6, 2),MID(J2, 9, 2))+TIME(MID(J2, 12, 2),MID(J2, 15, 2),MID(J2, 18, 2))
+
+section
+=IF(I2>NOW(),"FUTURE",IF(AND(I2<=NOW(),K2>=NOW()),"Current", "Recent"))
+
+CHATGPT:
+
+To fix this, you can use the TEXT function to convert the date and time values to text strings before concatenating them. The TEXT function takes two arguments: the value to be converted, and the desired format for the output.
+
+Here's an example of how you can use the TEXT function in combination with the CONCATENATE function to concatenate a date in cell A1 and a time in cell B1 into cell C1:
+
+Copy code
+=CONCATENATE(TEXT(A1,"mm/dd/yyyy")," ",TEXT(B1,"hh:mm:ss"))
+This formula will convert the date and time values in cells A1 and B1 to text strings using the specified formats, and then concatenate them into a single string separated by a space. The result will be displayed in cell C1. 
+
+
+
+
+
+how to store date and time in a single cell in excel
+
+To store a date and time value in a single cell in Microsoft Excel, you can use the following steps:
+
+Open your Excel spreadsheet and select the cell where you want to store the date and time value.
+
+Type the date and time value into the cell using the following format: mm/dd/yyyy hh:mm:ss. For example, to store the date and time "January 1, 2021 12:00:00 PM", you would type 01/01/2021 12:00:00.
+
+Press Enter to save the date and time value in the cell.
+
+Alternatively, you can also use the =NOW() function to insert the current date and time into a cell. This function will automatically update the cell with the current date and time whenever the spreadsheet is opened or refreshed.
+
+To format the cell to display the date and time in a specific way, you can use the "Format Cells" option. To do this, right-click on the cell and select "Format Cells" from the context menu. In the "Number" tab, select the desired date and time format from the "Category" list. Then click "OK" to apply the format to the cell.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+How can i split 1 table into 2 tables when a certain date occurs in excel vba
+You can use a loop in VBA to iterate through the rows of your table, and use an if statement to check the value of the date column in each row. When the date meets your criteria, you can use the .Cut method to move the row to the other table, or you can use the .Copy method to copy the row and then use the .Paste method to paste it into the other table.
+
+Here's an example of how you could achieve this using VBA:
+
+Copy code
+Sub SplitTable()
+
+Dim ws As Worksheet
+Set ws = ThisWorkbook.Sheets("Sheet1") 'Change "Sheet1" to the name of your sheet
+
+Dim tbl As ListObject
+Set tbl = ws.ListObjects("Table1") 'Change "Table1" to the name of your table
+
+Dim i As Long
+
+For i = tbl.ListRows.Count To 1 Step -1
+    If tbl.ListRows(i).Range(1, 2).Value < DateValue("01/01/2022") Then 'Change the date value to your desired criteria
+        tbl.ListRows(i).Range.Cut Destination:=ws.ListObjects("Table2").ListRows(ws.ListObjects("Table2").ListRows.Count).Range 'Change "Table2" to the name of your second table
+    End If
+Next i
+
+End Sub
+This code will loop through each row in the table, check the value in the second column (which is assumed to be the date column), and if the date is before January 1, 2022 (you can change this date to your desired criteria), it will cut the row from the first table and paste it into the second table.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+Will this work for multiple rows that need to added in table 2?
+Yes, the code I provided will work for multiple rows that need to be added to table 2. The loop will iterate through each row in the table, check the value in the date column, and if the date meets the specified criteria, it will cut the row and paste it into the second table. The Destination parameter in the .Cut method specifies the location where the row will be pasted, and in this case it is set to the last row in the second table.
+
+Keep in mind that if you are using the .Cut method to move rows between tables, the rows will be removed from the original table. If you want to copy the rows instead of moving them, you can use the .Copy method and then use the .Paste method to paste the copied rows into the second table.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+Can you write a code for similar situation when instead of splitting a table into two tables, I want to split a table into three tables 
+Certainly! Here's an example of how you can split a table into three tables based on a date column in Excel VBA:
+
+Copy code
+Sub SplitTable()
+
+Dim ws As Worksheet
+Set ws = ThisWorkbook.Sheets("Sheet1") 'Change "Sheet1" to the name of your sheet
+
+Dim tbl As ListObject
+Set tbl = ws.ListObjects("Table1") 'Change "Table1" to the name of your table
+
+Dim i As Long
+
+For i = tbl.ListRows.Count To 1 Step -1
+    If tbl.ListRows(i).Range(1, 2).Value < DateValue("01/01/2022") Then 'Change the date value to your first criteria
+        tbl.ListRows(i).Range.Cut Destination:=ws.ListObjects("Table2").ListRows(ws.ListObjects("Table2").ListRows.Count).Range 'Change "Table2" to the name of your second table
+    ElseIf tbl.ListRows(i).Range(1, 2).Value >= DateValue("01/01/2022") And tbl.ListRows(i).Range(1, 2).Value < DateValue("01/01/2023") Then 'Change the date values to your second criteria
+        tbl.ListRows(i).Range.Cut Destination:=ws.ListObjects("Table3").ListRows(ws.ListObjects("Table3").ListRows.Count).Range 'Change "Table3" to the name of your third table
+    End If
+Next i
+
+End Sub
+This code will loop through each row in the table, check the value in the date column, and if the date is before January 1, 2022 (you can change this date to your first criteria), it will cut the row and paste it into the second table. If the date is on or after January 1, 2022 but before January 1, 2023 (you can change these dates to your second criteria), it will cut the row and paste it into the third table.
+
+Keep in mind that if you are using the .Cut method to move rows between tables, the rows will be removed from the original table. If you want to copy the rows instead of moving them, you can use the .Copy method and then use the .Paste method to paste the copied rows into the second and third tables.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+how to apply the formula in Cell C2 to all cells below it in the C column in excel through VBA code
+To apply a formula to all cells below a specific cell in a column in Excel using VBA, you can use a loop to iterate through the cells in the column and use the .Formula property to set the formula for each cell.
+
+Here's an example of how you could achieve this:
+
+Copy code
+Sub ApplyFormula()
+
+Dim ws As Worksheet
+Set ws = ThisWorkbook.Sheets("Sheet1") 'Change "Sheet1" to the name of your sheet
+
+Dim i As Long
+
+For i = 2 To ws.Cells(ws.Rows.Count, "C").End(xlUp).Row 'Starts at row 2 and goes to the last non-empty row in column C
+    ws.Cells(i, "C").Formula = "=A1+B1" 'Change "=A1+B1" to your desired formula
+Next i
+
+End Sub
+This code will loop through each cell in column C starting at row 2, and set the formula for each cell to "=A1+B1" (you can change this to your desired formula). The loop will continue until it reaches the last non-empty cell in the column.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+how to concat date and time from two different cells into a single cell
+To concatenate a date and time value from two different cells into a single cell in Excel, you can use the CONCATENATE function or the & operator.
+
+Here's an example of how you can use the CONCATENATE function to concatenate a date in cell A1 and a time in cell B1 into cell C1:
+
+Copy code
+=CONCATENATE(A1," ",B1)
+This formula will combine the date and time values from cells A1 and B1 into a single string, separated by a space. The result will be displayed in cell C1.
+
+Alternatively, you can also use the & operator to concatenate the date and time values. Here's an example of how you can use the & operator to achieve the same result:
+
+Copy code
+=A1 & " " & B1
+Both of these formulas will combine the date and time values into a single string in the desired format.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+but this is giving me the datevalue 
+If the cells containing the date and time values are formatted as dates and times, rather than text strings, the CONCATENATE function or the & operator will treat them as numerical values and will return the serial number of the date and time, rather than the actual date and time value.
+
+To fix this, you can use the TEXT function to convert the date and time values to text strings before concatenating them. The TEXT function takes two arguments: the value to be converted, and the desired format for the output.
+
+Here's an example of how you can use the TEXT function in combination with the CONCATENATE function to concatenate a date in cell A1 and a time in cell B1 into cell C1:
+
+Copy code
+=CONCATENATE(TEXT(A1,"mm/dd/yyyy")," ",TEXT(B1,"hh:mm:ss"))
+This formula will convert the date and time values in cells A1 and B1 to text strings using the specified formats, and then concatenate them into a single string separated by a space. The result will be displayed in cell C1.
+
+Alternatively, you can also use the & operator to achieve the same result:
+
+Copy code
+=TEXT(A1,"mm/dd/yyyy") & " " & TEXT(B1,"hh:mm:ss")
+I hope this helps! Let me know if you have any questions.
+
+
+
+how to do a 'paste as values' through excel VBA code
+To perform a "Paste as Values" operation in Excel using VBA, you can use the .PasteSpecial method and specify the xlPasteValues parameter.
+
+Here's an example of how you can use the .PasteSpecial method to paste the contents of the clipboard as values:
+
+Copy code
+Sub PasteAsValues()
+
+'Copy the range to the clipboard
+Range("A1:B10").Copy
+
+'Paste the contents of the clipboard as values
+Range("C1").PasteSpecial xlPasteValues
+
+End Sub
+This code will copy the range "A1:B10" to the clipboard, and then paste the contents of the clipboard as values into cell C1. The .PasteSpecial method will overwrite any existing data in the destination cell or range.
+
+You can also use the .PasteSpecial method to paste the contents of the clipboard as a specific type of data, such as formulas or formatting. For a complete list of options, you can refer to the Excel documentation on the PasteSpecial method.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+how to apply this custom cell formatting to a whole column in excel through VBA : "mm/dd/yyyy hh:mm:ss"
+To apply custom cell formatting to a whole column in Excel using VBA, you can use the .NumberFormat property of the Range object.
+
+Here's an example of how you can use the .NumberFormat property to apply the custom cell formatting "mm/dd/yyyy hh:mm:ss" to the entire column A:
+
+Copy code
+Sub ApplyFormatting()
+
+Dim ws As Worksheet
+Set ws = ThisWorkbook.Sheets("Sheet1") 'Change "Sheet1" to the name of your sheet
+
+ws.Columns("A:A").NumberFormat = "mm/dd/yyyy hh:mm:ss"
+
+End Sub
+This code will apply the custom cell formatting "mm/dd/yyyy hh:mm:ss" to every cell in column A.
+
+Keep in mind that this will only change the way the cells are displayed, and will not affect the underlying data in the cells. If the cells contain date and time values that are not formatted as text strings, the custom formatting may not be displayed correctly.
+
+I hope this helps! Let me know if you have any questions.
+
+
+//ending today's day with how to split table into three
+can we make 3 sheets and 3 tables and then later on join them but then wont this create referncing problems
+
+or we can have these tables side by side in the same sheet
+
+
+
+18-30
+Cruas 30
+18 to 26 --- 18 to 25
+26 to 30
+
