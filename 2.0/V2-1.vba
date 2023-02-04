@@ -3,6 +3,7 @@ Sub Main()
       On Error GoTo ErrorHandler
         Call TimeFormat
         Call Latestorno
+        Call TableFiltering
   
     
     Exit Sub
@@ -115,3 +116,35 @@ Private Sub Latestorno()
                     ws1.Cells(iver, "Q").Formula = "=IF(RC[-16]=R[1]C[-16],""0"",""1"")"
                 Next iver
         End Sub
+
+Private Sub TableFiltering
+    'Filters with basic POWER/FR criteria, >=800 MW and 0MW avail etc.
+    'Also fixes the latest version column by pasting as values and deleting the older one
+        Columns("Q:Q").Select
+        Selection.Copy
+        Columns("R:R").Select
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+            :=False, Transpose:=False
+        Columns("Q:Q").Select
+        Application.CutCopyMode = False
+        Selection.Delete Shift:=xlToLeft
+
+    'Filtering
+       
+        Columns("A:Q").Select
+        Selection.AutoFilter
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=16, Criteria1:="=0", _
+            Operator:=xlOr, Criteria2:="="
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=2, Criteria1:="Active"
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=3, Criteria1:= _
+            "=Fortuite", Operator:=xlOr, Criteria2:="=Planifiée"
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=3, Criteria1:= _
+            "=Fortuite", Operator:=xlOr, Criteria2:="=Planifiée"
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=4, Criteria1:= _
+            "Nucléaire"
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=5, Criteria1:= _
+        "<>*FESSENHEIM*", Operator:=xlAnd
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=15, Criteria1:=">=800" _
+            , Operator:=xlAnd
+        ActiveSheet.Range("A1:Q" & ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row).AutoFilter Field:=17, Criteria1:="1"
+End Sub
